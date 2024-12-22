@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { CardComponent } from '../card/card.component';
+import { CountryService } from '../services/country.service';
+import { Country } from '../countries';
 
 @Component({
   selector: 'app-home',
-  imports: [CardComponent],
+  imports: [CardComponent, CommonModule, AsyncPipe],
   template: `
     <div class="bg-[#F2F2F2] w-full h-full pt-6 px-4 lg:px-20 lg:pt-12">
       <div class="flex justify-between">
@@ -38,8 +41,28 @@ import { CardComponent } from '../card/card.component';
           </select>
         </div>
       </div>
-      <app-card></app-card>
+      <div
+        class="flex flex-col items-center gap-y-10 lg:flex-row lg:flex-wrap lg:gap-[65px] mt-12"
+      >
+        <app-card
+          *ngFor="let country of countriesList$ | async"
+          [country]="country"
+        ></app-card>
+      </div>
     </div>
   `,
 })
-export class HomeComponent {}
+export class HomeComponent {
+  private readonly countriesService: CountryService = inject(CountryService);
+  countriesList: Country[] = [];
+
+  countriesList$ = this.countriesService.getAllCountries();
+
+  // constructor(private countriesService) {}
+  // ngOnInit(): void {
+  //   this.countriesService.getAllCountries().subscribe({
+  //     next: (data) => (this.countriesList = data),
+  //     error: (err) => console.error('Error fetching', err),
+  //   });
+  // }
+}
