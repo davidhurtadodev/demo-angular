@@ -19,10 +19,10 @@ import { NgxPaginationModule } from 'ngx-pagination';
   ],
   template: `
     <div class="bg-[#F2F2F2] w-full h-full pt-6 px-4 lg:px-20 lg:pt-12">
-      <div class="flex justify-between">
-        <form>
+      <div class="flex lg:justify-between lg:flex-row flex-col items-center">
+        <form class="w-full lg:max-w-[480px] max-w-[264px] mb-8 lg:mb-0">
           <h2 class="text-xl font-bold  mb-2">Filter by name (in client)</h2>
-          <div class="max-w-[480px]">
+          <div class=" w-full">
             <label class="input input-bordered flex items-center gap-2  w-full">
               <input
                 type="text"
@@ -49,14 +49,12 @@ import { NgxPaginationModule } from 'ngx-pagination';
             label="Filter"
             customCss="btn btn-primary mt-4"
             (onClick)="filterByName()"
+            type="submit"
           ></app-button>
-          <!-- <button (click)="filterByName()" class="btn btn-primary mt-4">
-            Filter
-          </button> -->
         </form>
-        <form>
+        <form class=" max-w-[264px] w-full ">
           <h2 class="text-xl font-bold  mb-2">Filter by country (in server)</h2>
-          <div class="max-w-[200px]">
+          <div class="w-full ">
             <select
               class="select select-bordered w-full max-w-xs text-xs lg:text-sm"
               [(ngModel)]="continent"
@@ -76,6 +74,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
             label="Filter"
             customCss="btn btn-primary mt-4"
             (onClick)="filterByContinent()"
+            type="submit"
           ></app-button>
         </form>
       </div>
@@ -107,13 +106,26 @@ import { NgxPaginationModule } from 'ngx-pagination';
 })
 export class HomeComponent {
   ngOnInit() {
-    // Get initial countries
-    this.countriesService.getAllCountries().subscribe((countries) => {
-      this.currentCountries = countries;
-      this.filteredCountries = countries;
-    });
+    const cachedCountries = localStorage.getItem('countries');
+    if (cachedCountries) {
+      this.currentCountries = JSON.parse(cachedCountries);
+      this.filteredCountries = this.currentCountries;
+    } else {
+      this.countriesService.getAllCountries().subscribe((countries) => {
+        this.currentCountries = countries;
+        this.filteredCountries = countries;
+        localStorage.setItem('countries', JSON.stringify(countries));
+      });
+    }
   }
 
+  // ngOnInit() {
+  //   // Get initial countries
+  //   this.countriesService.getAllCountries().subscribe((countries) => {
+  //     this.currentCountries = countries;
+  //     this.filteredCountries = countries;
+  //   });
+  // }
   private readonly countriesService: CountryService = inject(CountryService);
   // countriesList: Country[] = [];
   countryName = '';
@@ -121,9 +133,10 @@ export class HomeComponent {
   page: number = 1;
   private currentCountries: Country[] = [];
   filteredCountries: Country[] = [];
-  countries$: Observable<Country[]> = this.countriesService.getAllCountries();
+  // countries$: Observable<Country[]> = this.countriesService.getAllCountries();
 
   filterByName() {
+    this.page = 1;
     const filterValue = this.countryName.trim().toLowerCase();
 
     if (!filterValue) {
@@ -137,6 +150,7 @@ export class HomeComponent {
   }
 
   filterByContinent() {
+    this.page = 1;
     if (this.continent) {
       this.countriesService
         .getCountriesByContinent(this.continent)
