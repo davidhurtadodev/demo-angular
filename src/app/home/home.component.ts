@@ -2,17 +2,26 @@ import { Component, inject } from '@angular/core';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardComponent } from '../card/card.component';
+import { ButtonComponent } from '../button/button.component';
 import { CountryService } from '../services/country.service';
 import { Country } from '../countries';
 import { Observable } from 'rxjs';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @Component({
   selector: 'app-home',
-  imports: [CardComponent, CommonModule, AsyncPipe, FormsModule],
+  imports: [
+    ButtonComponent,
+    CardComponent,
+    CommonModule,
+    FormsModule,
+    NgxPaginationModule,
+  ],
   template: `
     <div class="bg-[#F2F2F2] w-full h-full pt-6 px-4 lg:px-20 lg:pt-12">
       <div class="flex justify-between">
         <form>
+          <h2 class="text-xl font-bold  mb-2">Filter by name (in client)</h2>
           <div class="max-w-[480px]">
             <label class="input input-bordered flex items-center gap-2  w-full">
               <input
@@ -36,11 +45,17 @@ import { Observable } from 'rxjs';
               </svg>
             </label>
           </div>
-          <button (click)="filterByName()" class="btn btn-primary mt-4">
-            Filter by name
-          </button>
+          <app-button
+            label="Filter"
+            customCss="btn btn-primary mt-4"
+            (onClick)="filterByName()"
+          ></app-button>
+          <!-- <button (click)="filterByName()" class="btn btn-primary mt-4">
+            Filter
+          </button> -->
         </form>
         <form>
+          <h2 class="text-xl font-bold  mb-2">Filter by country (in server)</h2>
           <div class="max-w-[200px]">
             <select
               class="select select-bordered w-full max-w-xs text-xs lg:text-sm"
@@ -57,20 +72,37 @@ import { Observable } from 'rxjs';
               <option value="oceana">Oceana</option>
             </select>
           </div>
-          <button (click)="filterByContinent()" class="btn btn-primary mt-4">
-            Filter By country
-          </button>
+          <app-button
+            label="Filter"
+            customCss="btn btn-primary mt-4"
+            (onClick)="filterByContinent()"
+          ></app-button>
         </form>
       </div>
       <div
         class="flex flex-col items-center gap-y-10 lg:flex-row lg:flex-wrap lg:gap-[65px] mt-12"
       >
         <app-card
-          *ngFor="let country of filteredCountries"
+          *ngFor="
+            let country of filteredCountries
+              | paginate : { itemsPerPage: 8, currentPage: page }
+          "
           [country]="country"
         ></app-card>
+        <div class="w-full justify-center">
+          <pagination-controls
+            class="pagination-controls"
+            (pageChange)="page = $event"
+          ></pagination-controls>
+        </div>
       </div>
     </div>
+  `,
+  styles: `
+   .pagination-controls ::ng-deep .ngx-pagination {
+    display: flex;
+    justify-content: center;
+  }
   `,
 })
 export class HomeComponent {
@@ -86,6 +118,7 @@ export class HomeComponent {
   // countriesList: Country[] = [];
   countryName = '';
   continent = '';
+  page: number = 1;
   private currentCountries: Country[] = [];
   filteredCountries: Country[] = [];
   countries$: Observable<Country[]> = this.countriesService.getAllCountries();
