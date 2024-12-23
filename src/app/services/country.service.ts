@@ -12,12 +12,12 @@ import { map, Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class CountryService {
-  private readonly _http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
   private readonly token = environment.apiKey;
 
   getAllCountries(): Observable<Country[]> {
-    return this._http
+    return this.http
       .get<ResponseCountriesApi>(this.baseUrl, {
         headers: { Authorization: `Bearer ${this.token}` },
       })
@@ -25,7 +25,7 @@ export class CountryService {
   }
 
   getCountryByIso2(iso2Code: string): Observable<Country> {
-    return this._http
+    return this.http
       .get<ResponseCountryApi>(`${this.baseUrl}/countries?iso2=${iso2Code}`, {
         headers: { Authorization: `Bearer ${this.token}` },
       })
@@ -33,7 +33,7 @@ export class CountryService {
   }
 
   getCountriesByContinent(continent?: string): Observable<Country[]> {
-    return this._http
+    return this.http
       .get<ResponseCountriesApi>(
         `${this.baseUrl}/countries?continent=${continent}`,
         {
@@ -42,6 +42,4 @@ export class CountryService {
       )
       .pipe(map((response) => response.data));
   }
-
-  constructor(private http: HttpClient) {}
 }
