@@ -20,20 +20,23 @@ import { FiltersComponent } from '../filters/filters.component';
       <app-filters
         (filteredCountriesChange)="updateFilteredCountries($event)"
         (currentCountriesChange)="updateCurrentCountries($event)"
+        (isLoadingChange)="updateIsLoading($event)"
         [page]="page"
       ></app-filters>
 
       <div
         class="flex flex-col items-center gap-y-10 lg:flex-row lg:flex-wrap lg:gap-[65px] mt-12"
       >
-        @if (filteredCountries.length > 0) {
-        <app-card
-          *ngFor="
-            let country of filteredCountries
-              | paginate : { itemsPerPage: 8, currentPage: page }
-          "
-          [country]="country"
-        ></app-card>
+        @if (isLoading) {
+        <p>Loading...</p>
+        } @else if (!isLoading && filteredCountries.length === 0) {
+        <p class="text-red-600 font-semibold text-lg">
+          No results with these queries
+        </p>
+        } @else { @for(country of filteredCountries | paginate : { itemsPerPage:
+        8, currentPage: page }; track country.iso2) {
+        <app-card [country]="country"></app-card>
+        }
 
         <div class="w-full justify-center">
           <pagination-controls
@@ -41,8 +44,6 @@ import { FiltersComponent } from '../filters/filters.component';
             (pageChange)="page = $event"
           ></pagination-controls>
         </div>
-        } @else {
-        <p>Loading...</p>
         }
       </div>
     </div>
@@ -60,6 +61,12 @@ export class HomeComponent {
   page: number = 1;
   currentCountries: Country[] = [];
   filteredCountries: Country[] = [];
+  isLoading = true;
+
+  updateIsLoading(isLoading: boolean) {
+    this.isLoading = isLoading;
+    console.log(isLoading);
+  }
 
   updateCurrentCountries(countries: Country[]) {
     this.currentCountries = countries;

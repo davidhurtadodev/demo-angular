@@ -85,13 +85,17 @@ export class FiltersComponent {
   currentCountries: Country[] = [];
   filteredCountries: Country[] = [];
   continent: string = '';
+  // isLoading = true;
   @Input() page: number = 1;
   @Output() filteredCountriesChange = new EventEmitter<Country[]>();
   @Output() currentCountriesChange = new EventEmitter<Country[]>();
+  @Output() isLoadingChange = new EventEmitter<boolean>();
   private readonly countriesService: CountryService = inject(CountryService);
 
   filterByName() {
     this.page = 1;
+    // this.isLoading = true;
+    this.isLoadingChange.emit(true);
     const filterValue = this.countryName.trim().toLowerCase();
 
     if (!filterValue) {
@@ -103,6 +107,8 @@ export class FiltersComponent {
     }
 
     this.filteredCountriesChange.emit(this.filteredCountries);
+    // this.isLoading = false;
+    this.isLoadingChange.emit(false);
   }
 
   filterByContinent() {
@@ -125,6 +131,8 @@ export class FiltersComponent {
   }
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
   ngOnInit() {
+    // this.isLoading = true;
+    this.isLoadingChange.emit(true);
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
@@ -147,5 +155,7 @@ export class FiltersComponent {
         });
       }
     }
+
+    this.isLoadingChange.emit(false);
   }
 }
