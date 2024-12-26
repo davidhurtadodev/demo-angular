@@ -9,7 +9,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   styles: ``,
 })
 export class ButtonComponent {
-  @Input() customCss: string = '';
+  @Input() customCss: string | null = '';
   @Input() label: string = '';
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
   @Output() onClick = new EventEmitter<void>();

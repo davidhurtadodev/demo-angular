@@ -65,7 +65,6 @@ export class HomeComponent {
 
   updateIsLoading(isLoading: boolean) {
     this.isLoading = isLoading;
-    console.log(isLoading);
   }
 
   updateCurrentCountries(countries: Country[]) {
